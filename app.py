@@ -34,7 +34,7 @@ if uploaded_file is not None:
     tmp_dir = tempfile.TemporaryDirectory()
     tmp_file_path = f"{tmp_dir.name}/input.mp4"
     with open(tmp_file_path, "wb") as tmp_file:
-        tmp_file.write(audio_file.read())
+        tmp_file.write(uploaded_file.read())
 
     # ffmpeg-pythonを使用して音声を抽出してMP3に変換
     audio_path = f"{tmp_dir.name}/output.mp3"
