@@ -31,13 +31,13 @@ uploaded_file = st.sidebar.file_uploader("動画ファイルをアップロー�
 
 if uploaded_file is not None:
     # video_bytesを一時ファイルに保存
-    video_bytes = uploaded_file.read()
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(video_bytes)
-        tmp_file_path = tmp_file.name
+    tmp_dir = tempfile.TemporaryDirectory()
+    tmp_file_path = f"{tmp_dir.name}/input.mp4"
+    with open(tmp_file_path, "wb") as tmp_file:
+        tmp_file.write(audio_file.read())
 
     # ffmpeg-pythonを使用して音声を抽出してMP3に変換
-    audio_path = "output.mp3"
+    audio_path = f"{tmp_dir.name}/output.mp3"
     with st.spinner("音声抽出中..."):
         cmd = f"ffmpeg -i {tmp_file_path} -ac 1 -ar 16000 {audio_path}"
         subprocess.run(cmd, shell=True)
@@ -46,8 +46,8 @@ if uploaded_file is not None:
 
     # 抽出された音声からWhisperを使って文字起こし
     with st.spinner("テキストを生成中..."):
-        audio_file = open(audio_path, "rb")
-        transcript = openai.Audio.transcribe("whisper-1", audio_file)
+        with open(audio_path, "rb") as audio_file:
+            transcript = openai.Audio.transcribe("whisper-1", audio_file)
 
         st.success("文字起こしが完了しました。")
         st.write(transcript.text)
